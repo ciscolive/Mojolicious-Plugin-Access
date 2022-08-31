@@ -13,8 +13,8 @@ Access: {
         # 设定并读取白名单
         my %ipList;
         my $remoteList = $c->app->home->to_string . '/conf/.remote_access.conf';
-        `touch $remoteList`            unless -e $remoteList;
-        `echo 127.0.0.1 > $remoteList` unless -s $remoteList;
+        `touch $remoteList` unless -e $remoteList;
+        `echo > 127.0.0.1 $remoteList` unless -s $remoteList;
 
         open IPFILE, "<$remoteList";
         while (<IPFILE>) {
