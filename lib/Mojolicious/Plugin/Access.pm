@@ -11,22 +11,23 @@ Access: {
         my $c = shift;
 
         # 设定并读取白名单
-        my %ipList;
-        my $remoteList = $c->app->home->to_string . '/conf/.remote_access.conf';
-        `touch $remoteList`            unless -e $remoteList;
-        `echo 127.0.0.1 > $remoteList` unless -s $remoteList;
+        my %addresses;
+        my $accessIps = $c->app->home->to_string . '/conf/.remote_access.conf';
+        `touch $accessIps`            unless -e $accessIps;
+        `echo 127.0.0.1 > $accessIps` unless -s $accessIps;
 
-        open IPFILE, "<$remoteList";
-        while (<IPFILE>) {
+        open IPADDR, "<$accessIps";
+        while (<IPADDR>) {
           chomp;
-          $ipList{$_} = 1;
+          next if /^#|!|;/;
+          $addresses{$_} = 1;
         }
-        close IPFILE;
+        close IPADDR;
 
         # 判定客户端地址是否有权限访问接口
         my $remote_ip = $c->tx->original_remote_address;
-        unless (exists $ipList{$remote_ip}) {
-          return $c->render(json => {'code' => 403, 'message' => qq{Ip $remote_ip is forbidden}});
+        unless (exists $addresses{$remote_ip}) {
+          return $c->render(json => {'code' => 403, 'message' => qq{client address $remote_ip is forbidden}});
         }
       }
     );
@@ -47,7 +48,7 @@ Mojolicious::Plugin::Access
 
 =head1 VERSION
 
-version 0.01
+version 0.03
 
 =head1 SYNOPSIS
 
@@ -84,7 +85,7 @@ WENWU YAN <careline@cpan.org>
 
 =head1 CONTRIBUTOR
 
-WENWU YAN  <careline@gmail.com>
+WENWU YAN  <careline@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
